@@ -1,0 +1,74 @@
+{
+  "valid_login": {
+    "username": "standard_user",
+    "password": "secret_sauce"
+  },
+  "invalid_login": [
+    {
+      "case": "wrong_password",
+      "username": "standard_user",
+      "password": "wrong_password",
+      "expected_error": "Epic sadface: Username and password do not match any user in this service"
+    },
+    {
+      "case": "wrong_username",
+      "username": "invalid_user",
+      "password": "secret_sauce",
+      "expected_error": "Epic sadface: Username and password do not match any user in this service"
+    },
+    {
+      "case": "locked_out_user",
+      "username": "locked_out_user",
+      "password": "secret_sauce",
+      "expected_error": "Epic sadface: Sorry, this user has been locked out."
+    }
+  ],
+  "products": {
+    "backpack": {
+      "name": "Sauce Labs Backpack",
+      "price": "$29.99"
+    },
+    "bike_light": {
+      "name": "Sauce Labs Bike Light",
+      "price": "$9.99"
+    },
+    "bolt_tshirt": {
+      "name": "Sauce Labs Bolt T-Shirt",
+      "price": "$15.99"
+    },
+    "fleece": {
+      "name": "Sauce Labs Fleece Jacket",
+      "price": "$49.99"
+    },
+    "onesie": {
+      "name": "Sauce Labs Onesie",
+      "price": "$7.99"
+    }
+  },
+  "sorting": {
+    "name_a_to_z": {
+      "value": "az",
+      "first_product": "Sauce Labs Backpack"
+    },
+    "name_z_to_a": {
+      "value": "za",
+      "first_product": "Test.allTheThings() T-Shirt (Red)"
+    },
+    "price_low_to_high": {
+      "value": "lohi",
+      "first_product": "Sauce Labs Onesie",
+      "first_price": "$7.99"
+    },
+    "price_high_to_low": {
+      "value": "hilo",
+      "first_product": "Sauce Labs Fleece Jacket",
+      "first_price": "$49.99"
+    }
+  },
+  "checkout": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "postal_code": "94040",
+    "success_header": "Thank you for your order!"
+  }
+}

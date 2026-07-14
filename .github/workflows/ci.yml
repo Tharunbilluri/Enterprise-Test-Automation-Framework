@@ -1,0 +1,149 @@
+name: Enterprise Test Automation CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+jobs:
+  selenium-chrome:
+    name: Selenium Chrome (headless)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Selenium smoke + regression
+        env:
+          BASE_URL: https://www.saucedemo.com/
+          BROWSER: chrome
+          HEADLESS: "true"
+          AUTOMATION_ENGINE: selenium
+          SCREENSHOT_ON_FAILURE: "true"
+          LOG_LEVEL: INFO
+        run: |
+          pytest -m "(smoke or regression) and not playwright" \
+            --browser=chrome \
+            --headless \
+            --engine=selenium \
+            --reruns=1 \
+            --reruns-delay=1 \
+            -n auto \
+            --html=reports/pytest_report.html \
+            --self-contained-html \
+            --alluredir=reports/allure-results \
+            --clean-alluredir
+
+      - name: Write Allure environment metadata
+        if: always()
+        run: |
+          python - <<'PY'
+          from utils.report_util import write_allure_environment, write_run_manifest
+          write_allure_environment()
+          write_run_manifest()
+          PY
+
+      - name: Generate Allure Report
+        if: always()
+        uses: simple-elf/allure-report-action@v1.7
+        with:
+          allure_results: reports/allure-results
+          allure_report: reports/allure-report
+          keep_reports: 20
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-html-report
+          path: reports/*.html
+          if-no-files-found: warn
+
+      - name: Upload Allure report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: reports/allure-report
+          if-no-files-found: warn
+
+      - name: Upload screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-and-logs
+          path: |
+            screenshots/
+            logs/
+          if-no-files-found: warn
+
+  playwright-chromium:
+    name: Playwright Chromium (headless)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Run Playwright smoke tests
+        env:
+          BASE_URL: https://www.saucedemo.com/
+          BROWSER: chrome
+          HEADLESS: "true"
+          AUTOMATION_ENGINE: playwright
+          SCREENSHOT_ON_FAILURE: "true"
+        run: |
+          pytest tests/ui/test_playwright_smoke.py \
+            --browser=chrome \
+            --headless \
+            --engine=playwright \
+            --html=reports/playwright_report.html \
+            --self-contained-html \
+            --alluredir=reports/allure-results-pw \
+            --clean-alluredir
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: reports/playwright_report.html
+          if-no-files-found: warn
+
+      - name: Upload Playwright screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots-logs
+          path: |
+            screenshots/
+            logs/
+          if-no-files-found: warn

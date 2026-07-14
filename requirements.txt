@@ -1,0 +1,24 @@
+# Enterprise Test Automation Framework — Python dependencies
+# Pin versions for reproducible CI and local environments (Python 3.12+)
+
+# Test runner & plugins
+pytest==8.3.5
+pytest-xdist==3.6.1
+pytest-html==4.1.1
+pytest-rerunfailures==15.0
+pytest-base-url==2.1.0
+
+# Reporting
+allure-pytest==2.13.5
+
+# UI automation
+selenium==4.29.0
+webdriver-manager==4.0.2
+playwright==1.50.0
+
+# Data & configuration
+python-dotenv==1.0.1
+Faker==36.1.1
+
+# HTTP client (API tests / future integrations)
+requests==2.32.3
